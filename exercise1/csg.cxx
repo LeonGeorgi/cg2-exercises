@@ -26,30 +26,30 @@ public:
 
 	T eval_and_get_index(const pnt_type& p, unsigned int& selected_i) const
 	{
-		T value;
-
-		// Task 1.1b: You can outsource logic here that evaluates the operator function
-		//            and reports the index of the relevant child in selected_i
-
-		return value;
+		T smallest_child = std::numeric_limits<T>::max();
+		for (unsigned int i = 0; i < get_nr_children(); ++i)
+		{
+			T child = get_implicit_child(i)->evaluate(p);
+			if (child < smallest_child)
+			{
+				smallest_child = child;
+				selected_i = i;
+			}
+		}
+		return smallest_child;
 	}
 
 	T evaluate(const pnt_type& p) const
 	{
-		double f_p = std::numeric_limits<double>::infinity();
-
-		// Task 1.1b: Evaluate the union operator at p.
-
-		return f_p;
+		unsigned int selected_i;
+		return eval_and_get_index(p, selected_i);
 	}
 
 	vec_type evaluate_gradient(const pnt_type& p) const
 	{
-		vec_type grad_f_p(0, 0, 0);
-
-		// Task 1.1b: Return the gradient of the union operator at p
-
-		return grad_f_p;
+		unsigned int selected_i;
+		eval_and_get_index(p, selected_i);
+		return get_implicit_child(selected_i)->evaluate_gradient(p);
 	}
 };
 
@@ -65,30 +65,30 @@ public:
 
 	T eval_and_get_index(const pnt_type& p, unsigned int& selected_i) const
 	{
-		T value;
-
-		// Task 1.1b: You can outsource logic here that evaluates the operator function
-		//            and reports the index of the relevant child in selected_i
-
-		return value;
+		T largest_child = std::numeric_limits<T>::lowest();
+		for (unsigned int i = 0; i < get_nr_children(); ++i)
+		{
+			T child = get_implicit_child(i)->evaluate(p);
+			if (child > largest_child)
+			{
+				largest_child = child;
+				selected_i = i;
+			}
+		}
+		return largest_child;
 	}
 
 	T evaluate(const pnt_type& p) const
 	{
-		double f_p = std::numeric_limits<double>::infinity();
-
-		// Task 1.1b: Evaluate the intersection operator at p.
-
-		return f_p;
+		unsigned int selected_i;
+		return eval_and_get_index(p, selected_i);
 	}
 
 	vec_type evaluate_gradient(const pnt_type& p) const
 	{
-		vec_type grad_f_p(0, 0, 0);
-
-		// Task 1.1b: Return the gradient of the intersection operator at p
-
-		return grad_f_p;
+		unsigned int selected_i;
+		eval_and_get_index(p, selected_i);
+		return get_implicit_child(selected_i)->evaluate_gradient(p);
 	}
 };
 
@@ -104,30 +104,39 @@ public:
 
 	T eval_and_get_index(const pnt_type& p, unsigned int& selected_i) const
 	{
-		T value;
+		T child_1 = get_implicit_child(0)->evaluate(p);
+		T child_2 = get_implicit_child(1)->evaluate(p);
 
-		// Task 1.1b: You can outsource logic here that evaluates the operator function
-		//            and reports the index of the relevant child in selected_i
-
-		return value;
+		if (child_1 > -child_2)
+		{
+			selected_i = 0;
+			return child_1;
+		}
+		else
+		{
+			selected_i = 1;
+			return -child_2;
+		}
 	}
 
 	T evaluate(const pnt_type& p) const
 	{
-		double f_p = std::numeric_limits<double>::infinity();
-
-		// Task 1.1b: Evaluate the difference operator at p.
-
-		return f_p;
+		unsigned int selected_i;
+		return eval_and_get_index(p, selected_i);
 	}
 
 	vec_type evaluate_gradient(const pnt_type& p) const
 	{
-		vec_type grad_f_p(0, 0, 0);
-
-		// Task 1.1b: Return the gradient of the difference operator at p
-
-		return grad_f_p;
+		unsigned int selected_i;
+		eval_and_get_index(p, selected_i);
+		if (selected_i == 0)
+		{
+			return get_implicit_child(0)->evaluate_gradient(p);
+		}
+		else
+		{
+			return -get_implicit_child(1)->evaluate_gradient(p);
+		}
 	}
 };
 

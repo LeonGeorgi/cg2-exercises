@@ -4,7 +4,7 @@
 
 
 template <typename T>
-struct cylinder :  public implicit_primitive<T>
+struct cylinder : public implicit_primitive<T>
 {
 	typedef typename implicit_base<T>::vec_type vec_type;
 	typedef typename implicit_base<T>::pnt_type pnt_type;
@@ -15,22 +15,14 @@ struct cylinder :  public implicit_primitive<T>
 	/// Evaluate the implicit cylinder function at p
 	T evaluate(const pnt_type& p) const
 	{
-		double f_p = std::numeric_limits<double>::infinity();
-
-		// Task 1.1a: Implement an algebraic function of p that evaluates to 0 on the
-		//            unit cylinder along an axis.
-
-		return f_p;
+		return p[0] * p[0] + p[1] * p[1] - 1.0;
 	}
 
 	/// Evaluate the gradient of the implicit cylinder function at p
 	vec_type evaluate_gradient(const pnt_type& p) const
 	{
-		vec_type grad_f_p(0, 0, 0);
-
-		// Task 1.1a: Return the gradient of the function at p.
-
-		return grad_f_p;
+		float distance = std::sqrt(p[0] * p[0] + p[1] * p[1]);
+		return vec_type(p[0] / distance, p[1] / distance, 0);
 	}
 
 	void create_gui()

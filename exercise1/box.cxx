@@ -23,22 +23,18 @@ struct box : public implicit_primitive<T>
 	/// Evaluate the implicit box function at p
 	T evaluate(const pnt_type& p) const
 	{
-		double f_p = std::numeric_limits<double>::infinity();
-
-		// Task 1.1a: Implement a function of p that evaluates to 0 on the unit cube.
-		//            You may use any suitable distance metric.
-
-		return f_p;
+		return std::max(abs(p[0]), std::max(abs(p[1]), abs(p[2]))) - 1.0;
 	}
 
 	/// Evaluate the gradient of the implicit box function at p
 	vec_type evaluate_gradient(const pnt_type& p) const
 	{
-		vec_type grad_f_p(0, 0, 0);
-
-		// Task 1.1a: Return the gradient of the function at p.
-
-		return grad_f_p;
+		if (abs(p[0]) > abs(p[1]) && abs(p[0]) > abs(p[2]))
+			return vec_type(p[0] > 0 ? 1 : -1, 0, 0);
+		else if (abs(p[1]) > abs(p[2]))
+			return vec_type(0, p[1] > 0 ? 1 : -1, 0);
+		else
+			return vec_type(0, 0, p[2] > 0 ? 1 : -1);
 	}
 
 	void create_gui()

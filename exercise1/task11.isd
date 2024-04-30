@@ -1,0 +1,19 @@
+% allow for numerical gradients - set 'numeric' to true (you can do that in the GUI too)
+% to compare against your analytic gradients
+numeric_gradient[epsilon=0.0625;numeric=false](
+  difference(
+    intersection(
+      sphere,
+      scale[sx=0.8;sy=0.8;sz=0.8](
+        box
+      )
+    ),
+    scale[sx=0.5;sy=0.5;sz=0.5](
+      union(
+        cylinder,
+        rotate[a=90](cylinder),
+        rotate[a=90;nx=0;ny=-1](cylinder)
+      )
+    )
+  )
+)
