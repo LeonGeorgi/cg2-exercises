@@ -17,20 +17,40 @@
 template <typename T>
 typename distance_surface<T>::vec_type distance_surface<T>::get_edge_distance_vector(size_t i, const pnt_type &p) const
 {
-	vec_type v;
+	edge_type edge = (skeleton<T>::edges)[i];
+	vec_type edge_vector = (knot_vector<T>::points)[edge.second] - (knot_vector<T>::points)[edge.first];
+	vec_type point_vector = p - (knot_vector<T>::points)[edge.first];
+	double projection_length = dot(edge_vector, point_vector) / edge_vector.length();
 
-	// Task 1.2: Compute the distance vector from edge i to p.
-
-	return v;
+	if (projection_length > 0 && projection_length < edge_vector.length())
+	{
+		return point_vector - projection_length * edge_vector / edge_vector.length();
+	}
+	else if (projection_length <= 0)
+	{
+		return point_vector;
+	}
+	else
+	{
+		return p - (knot_vector<T>::points)[edge.second];
+	}
 }
 
 template <typename T>
 double distance_surface<T>::get_min_distance_vector (const pnt_type &p, vec_type& v) const
 {
-	double min_dist;
+	double min_dist = std::numeric_limits<double>::infinity();
 
-	// Task 1.2: Compute the minimum distance from the skeleton to p, and report the
-	//           corresponding distance vector in v.
+	for (size_t i = 0; i < (skeleton<T>::edges).size(); i++)
+	{
+		vec_type edge_distance_vector = get_edge_distance_vector(i, p);
+		double dist = edge_distance_vector.length();
+		if (dist < min_dist)
+		{
+			min_dist = dist;
+			v = edge_distance_vector;
+		}
+	}
 
 	return min_dist;
 }
@@ -38,21 +58,16 @@ double distance_surface<T>::get_min_distance_vector (const pnt_type &p, vec_type
 template <typename T>
 T distance_surface<T>::evaluate(const pnt_type& p) const
 {
-	double f_p = std::numeric_limits<double>::infinity();
-
-	// Task 1.2: Evaluate the distance surface function at p.
-
-	return f_p;
+	vec_type v;
+	return get_min_distance_vector(p, v) - r;
 }
 
 template <typename T>
 typename distance_surface<T>::vec_type distance_surface<T>::evaluate_gradient(const pnt_type& p) const
 {
-	vec_type grad_f_p(0, 0, 0);
-
-	// Task 1.2: Return the gradient of the distance surface function at p.
-
-	return grad_f_p;
+	vec_type v;
+	get_min_distance_vector(p, v);
+	return v / v.length();
 }
 
 /// update helper variables for edge i
