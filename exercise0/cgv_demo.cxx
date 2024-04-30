@@ -19,10 +19,10 @@
 #include <cgv/math/ftransform.h>
 
 // Framework standard libraries
-#include <cgv_gl/gl/gl.h>
+#include "libs/cgv_gl/gl/gl.h"
 
 // Framework standard plugins
-#include <plugins/cmf_tt_gl_font/tt_gl_font_server.h>
+#include "plugins/cmf_tt_gl_font/tt_gl_font_server.h"
 
 // Some constant symbols
 #define FB_MAX_RESOLUTION 2048
@@ -74,7 +74,8 @@ protected:
 	//           initialize this to "do not use custom quad" when constructing the
 	//           object.
 
-	// < your code here >
+	bool use_custom_tesselation = false;
+	bool drawDemo = false;
 
 	// [END] Task 0.1
 	//*********************************************************************************/
@@ -141,6 +142,7 @@ public:
 		//           file.
 		// Reflect the properties
 		return
+			rh.reflect_member("DrawDemo", drawDemo) &&
 			rh.reflect_member("text", text) &&
 			rh.reflect_member("text_face_attrib", *text_face_attrib_uint) &&
 			rh.reflect_member("text_size", text_size) &&
@@ -150,7 +152,8 @@ public:
 			rh.reflect_member("fb_bgcolor_g", fb_bgcolor_g) &&
 			rh.reflect_member("fb_bgcolor_b", fb_bgcolor_b) &&
 			rh.reflect_member("wireframe", wireframe) &&
-			rh.reflect_member("draw_backside", draw_backside);
+			rh.reflect_member("draw_backside", draw_backside) &&
+			rh.reflect_member("use_custom_tesselation", use_custom_tesselation);
 	}
 
 	// Part of the cgv::base::base interface, should be implemented to respond to write
@@ -188,6 +191,9 @@ public:
 		//*****************************************************************************/
 		// Task 0.1: [OPTIONAL] If necessary, add additional handling for your custom
 		//           quad toggle here.
+		if (member_ptr == &use_custom_tesselation) {
+			std::cout << "Custom tesselation: " << use_custom_tesselation << std::endl;
+		}
 
 		//*****************************************************************************/
 
@@ -280,9 +286,13 @@ public:
 	// Required interface for cgv::gui::provider
 	void create_gui(void)
 	{
+		
+		add_decorator("Demo", "heading", "level=1");
+		add_member_control(this, "DrawDemo", drawDemo);
+
 		// Simple controls. Notifies us of GUI input via the on_set() method.
 		// - section header
-		add_decorator("Text properties", "heading", "level=1");
+		add_decorator("Text properties", "heading", "level=2");
 		// - the text
 		add_member_control(this, "contents", text);
 		// - the text size
@@ -297,7 +307,7 @@ public:
 		// a slider. Also, we obtain the actual control object to do more advanced
 		// callback logic than the implicit on_set() above.
 		// - section header
-		add_decorator("Offscreen framebuffer", "heading", "level=1");
+		add_decorator("Offscreen framebuffer", "heading", "level=2");
 		// - text x position
 		cgv::gui::control<int>* ctrl = add_control(
 			"text pos x", text_pos.x(), "value_slider",
@@ -340,7 +350,7 @@ public:
 		// Task 0.1: add a GUI control to switch between custom tesselation of the quad
 		//           and the one built into the cgv::render::context.
 
-		// < Your code here >
+		add_member_control(this, "use custom tesselation", use_custom_tesselation);
 
 		// [END] Task 0.1
 		//*****************************************************************************/
@@ -422,6 +432,10 @@ public:
 	// Should be overwritten to sensibly implement the cgv::render::drawable interface
 	void draw(cgv::render::context& ctx)
 	{
+		if(!drawDemo) {
+			return;
+		}
+		
 		////
 		// Render text to texture via framebuffer object
 
@@ -492,7 +506,12 @@ public:
 		// Task 0.1: If enabled, render the quad with custom tesselation
 		//           instead of using tesselate_unit_square(). You can invoke
 		//           the method draw_my_unit_square() for this.
+		if (use_custom_tesselation) {
+			draw_my_unit_square(ctx);
+		}
+		else {
 			ctx.tesselate_unit_square();
+		}
 
 		//*********************************************************************/
 
@@ -504,8 +523,14 @@ public:
 		// Task 0.1: If enabled, render the quad with custom tesselation
 		//           instead of using tesselate_unit_square(). Again, you
 		//           can invoke the method draw_my_unit_square() for this.
-			if (draw_backside)
+		if (draw_backside) {
+			if (use_custom_tesselation) {
+				draw_my_unit_square(ctx);
+			}
+			else {
 				ctx.tesselate_unit_square();
+			}
+		}
 
 		//*****************************************************************/
 		glPopAttrib();
