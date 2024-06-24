@@ -39,11 +39,12 @@ void Bone::calculate_matrices()
 	//as system transform 
 	//orientation: 
 	
-	if(parent == nullptr)
-		orientationTransformPrevJointToCurrent = this->orientationTransformGlobalToLocal;
-	else
-		orientationTransformPrevJointToCurrent = this->orientationTransformGlobalToLocal * parent->orientationTransformLocalToGlobal;
-
+	if (parent == nullptr) {
+		orientationTransformPrevJointToCurrent = Mat4();
+		orientationTransformPrevJointToCurrent.identity();
+	} else {
+		orientationTransformPrevJointToCurrent = parent->orientationTransformGlobalToLocal * this->orientationTransformLocalToGlobal;
+	}
 	//transformation:
 	translationTransformCurrentJointToNext = Mat4();
 	translationTransformCurrentJointToNext.identity();
