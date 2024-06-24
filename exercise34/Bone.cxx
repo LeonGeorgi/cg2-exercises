@@ -35,9 +35,23 @@ void Bone::calculate_matrices()
 	orientationTransformLocalToGlobal = cgv::math::inv(orientationTransformGlobalToLocal);
 
 	////
-	// Task 3.1: Implement matrix calculation
+	// Task 3.1: Implement matrix calculationparent
+	//as system transform 
+	//orientation: 
+	
+	if(parent == nullptr)
+		orientationTransformPrevJointToCurrent = this->orientationTransformGlobalToLocal;
+	else
+		orientationTransformPrevJointToCurrent = this->orientationTransformGlobalToLocal * parent->orientationTransformLocalToGlobal;
 
-
+	//transformation:
+	translationTransformCurrentJointToNext = Mat4();
+	translationTransformCurrentJointToNext.identity();
+	Vec4 dirLocal = orientationTransformGlobalToLocal * Vec4(direction_in_world_space, 0);
+	translationTransformCurrentJointToNext(0, 3) = dirLocal[0] * length;
+	translationTransformCurrentJointToNext(1, 3) = dirLocal[1] * length;
+	translationTransformCurrentJointToNext(2, 3) = dirLocal[2] * length;
+	
 
 	////
 	// Task 4.6: Implement matrix calculation (skinning)
@@ -50,6 +64,14 @@ Mat4 Bone::calculate_transform_prev_to_current_with_dofs()
 	// Task 3.1: Implement matrix calculation
 
 	Mat4 t;
+	t.identity();
+	//TODO impelement degree of freedom
+	t = t * orientationTransformPrevJointToCurrent;
+	for (auto dof : dofs)
+	{
+		t = t * dof->calculate_matrix();
+	}
+	t = t * translationTransformCurrentJointToNext;
 	return t;
 }
 
@@ -59,6 +81,7 @@ Mat4 Bone::calculate_transform_prev_to_current_without_dofs()
 	// Task 3.1: Implement matrix calculation
 
 	Mat4 t;
+	t = orientationTransformPrevJointToCurrent * translationTransformCurrentJointToNext;
 	return t;
 }
 

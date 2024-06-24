@@ -35,7 +35,7 @@ private:
 	std::map<base_ptr, Bone*> gui_to_bone;
 
 	// slot for the signal
-	void timer_event(double, double dt);
+	void timer_event(double t, double dt);
 	void skeleton_changed(std::shared_ptr<Skeleton>);
 
 	void generate_tree_view_nodes();
@@ -55,6 +55,8 @@ private:
 	void dof_changed(double new_value);
 	void recursive_connect_signals(Bone* b);
 
+	bool is_dof_rotation(std::string dof_title);
+	Mat4 get_rotation_matrix(std::string dof_title, Vec3 dir);
 	
 
 	void start_animation();
@@ -67,7 +69,11 @@ public:
 	// Create the gui elements
 	void create_gui();
 	// Draw the scene
-	void draw(context& c);
+	void draw(context& ctx);
+
+	Animation animation;
+	bool do_animation = false;
+	int animation_frame = 0;
 
 	std::string get_parent_type() const;
 };
